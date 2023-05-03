@@ -1,0 +1,6 @@
+# Configuration for immerse-eu/immerse-dqa
+# rename this file to config.yaml and enter/extend content below
+
+# Local directories
+localPaths:
+  basePathMaganamed: C:/temp/maganamed
