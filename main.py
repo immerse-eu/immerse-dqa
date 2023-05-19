@@ -2,6 +2,15 @@
 # - install packages: PyYAML
 import os
 import yaml
+import pandas as pd
+from tabulate import tabulate
+from functools import reduce
+
+# Required modules
+import prepare_dashboard
+import prepare_dataquier
+
+
 
 # Required modules
 import maganamed
@@ -11,8 +20,10 @@ with open("config.yaml", "r") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 # Compile Maganamed dataframes
-maganamed.compileMaganamedData(config)
+dfMaganamed = maganamed.compileMaganamedData(config)
 
-# List Contents of export CSV directory
-#list = os.listdir(config["localPaths"]["basePathMaganamed"] + "/export")
-#print(list)
+prepareDashboard(config, dfMaganamed)
+
+
+
+
