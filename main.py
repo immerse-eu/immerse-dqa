@@ -11,7 +11,6 @@ import prepare_dashboard
 import prepare_dataquier
 
 
-
 # Required modules
 import maganamed
 
@@ -22,8 +21,9 @@ with open("config.yaml", "r") as f:
 # Compile Maganamed dataframes
 dfMaganamed = maganamed.compileMaganamedData(config)
 
-prepareDashboard(config, dfMaganamed)
+#print(tabulate(dfMaganamed["EQ5D5L1"], headers="keys"))
 
+dfDashboard = prepare_dashboard.prepareDashboard(config, dfMaganamed)
 
-
-
+# Export merged dataframe to CSV file
+dfDashboard.to_csv(config["localPaths"]["basePathDqa"] + "/dashboard.csv", sep = ";", index = False)

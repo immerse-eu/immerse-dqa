@@ -36,8 +36,7 @@ def compileMaganamedData(config):
         ecrfFilename = dictCodebook["eCRFs"][ecrfId]["ecrfFilename"]
         ecrfAcronym = dictCodebook["eCRFs"][ecrfId]["ecrfAcronym"]
         if p.isfile(config["localPaths"]["basePathMaganamed"] + "/export/" + ecrfFilename):
-            if ecrfAcronym.startswith("EQ5D5L1"):
-                dfMaganamed[ecrfAcronym] = pd.read_csv(config["localPaths"]["basePathMaganamed"] + "/export/" + ecrfFilename, delimiter = ";")
+            dfMaganamed[ecrfAcronym] = pd.read_csv(config["localPaths"]["basePathMaganamed"] + "/export/" + ecrfFilename, delimiter = ";")
 
     # Drop irrelevant columns created_at and diary_date
     for ecrfAcronym in dfMaganamed:
@@ -74,7 +73,7 @@ def deriveRecordStatus(timestamp_started, timestamp_finished):
 # Function to calculate eCRF fillout duration for completed forms
 def deriveFilloutTime(status, timestamp_started, timestamp_finished):
     if status == "COMPLETED":
-        td = pd.to_datetime(timestamp_finished, format = "%Y-%m-%dT%H:%M:%S") - pd.to_datetime(timestamp_started, format = "%Y-%m-%dT%H:%M:%S")
+        td = pd.to_datetime(timestamp_finished, format = "ISO8601") - pd.to_datetime(timestamp_started, format = "ISO8601")
         return(td.seconds)
     else:
         return(None)
