@@ -73,7 +73,7 @@ def deriveRecordStatus(timestamp_started, timestamp_finished):
 # Function to calculate eCRF fillout duration for completed forms
 def deriveFilloutTime(status, timestamp_started, timestamp_finished):
     if status == "COMPLETED":
-        td = pd.to_datetime(timestamp_finished, format = "ISO8601") - pd.to_datetime(timestamp_started, format = "ISO8601")
+        td = pd.to_datetime(timestamp_finished) - pd.to_datetime(timestamp_started)
         return(td.seconds)
     else:
         return(None)
