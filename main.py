@@ -9,7 +9,7 @@ from functools import reduce
 # Required modules
 import prepare_dashboard
 import prepare_dataquier
-
+import dashboard_visualization
 
 # Required modules
 import maganamed
@@ -27,3 +27,6 @@ dfDashboard = prepare_dashboard.prepareDashboard(config, dfMaganamed)
 
 # Export merged dataframe to CSV file
 dfDashboard.to_csv(config["localPaths"]["basePathDqa"] + "/dashboard.csv", sep = ";", index = False)
+
+# generate dashboard figures
+dashboard_visualization.prepareFigures(config, dfDashboard)
