@@ -1,11 +1,16 @@
 # Required Libraries
+import matplotlib as matplotlib
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.backends.backend_pdf as backend_pdf
 
 
 # function to create and save dashboard figures
 def prepareFigures(config, dfDashboard):
+    # Export dashboard as PDF file
+    pdf = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/ecrf_status_dashboard.pdf")
+
     # loop to create aggregated status plots for every ecrf_acronym
     for acronym in dfDashboard.ecrf_acronym.unique():
         # make a copy of the original dfDashboard object
@@ -23,17 +28,15 @@ def prepareFigures(config, dfDashboard):
         df_plot2 = pd.DataFrame(df_plot2)
         df_plot2["status"] = ['COMPLETE'] * len(df_plot.COMPLETED) + ['STARTED'] * len(df_plot.COMPLETED) + ['EMPTY'] * len(df_plot.COMPLETED)
         df_plot2["center_name"] = df_plot2.index
-        df_plot2.columns = ["data", "status", "center_name"]
-
-        # Uncomment for testing visualization in IDE
-        # f, ax = plt.subplots()
-        # sns.barplot(data=df_plot2, x="center_name", y="data", hue="status", ax=ax, color='green', palette=['tab:green', 'tab:orange', 'tab:red'])
+        df_plot2.columns = ["status_accumulation", "status", "center_name"]
 
         # create bar plot
-        bar_plot = sns.barplot(data=df_plot2, x="center_name", y="data", hue="status", color = 'green', palette = ['tab:green', 'tab:orange', 'tab:red'])
-        # get specific sns figure for saving
-        fig = bar_plot.get_figure()
-        # Export dashboard as PDF file
-        fig.savefig(config["localPaths"]["basePathDqa"] + "/" + acronym + ".pdf")
+        bar_plot = sns.barplot(data=df_plot2, x="center_name", y="status_accumulation", hue="status", color = 'green', palette = ['tab:green', 'tab:orange', 'tab:red'])
+        # add title to every plot
+        bar_plot.set(title='eCRF: ' + acronym)
+        # get specific sns figure for saving and save each figure in loop into pdf object
+        pdf.savefig(bar_plot.get_figure())
         # close the sns plot
-        plt.close(fig)
+        plt.close(bar_plot.get_figure())
+    # finally close pdf object to save pdf
+    pdf.close()
