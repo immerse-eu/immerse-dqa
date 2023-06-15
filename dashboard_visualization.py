@@ -16,9 +16,9 @@ def prepareFigures(config, dfDashboard):
         # make a copy of the original dfDashboard object
         df_ecrf = dfDashboard.copy()
         # create binary values for ecrf_status
-        binary_status = pd.get_dummies(df_ecrf.ecrf_status)
+        binary_status_ecrf = pd.get_dummies(df_ecrf.ecrf_status)
         # add binary values to dataframe
-        df_ecrf_2 = pd.concat([df_ecrf, binary_status], axis=1)
+        df_ecrf_2 = pd.concat([df_ecrf, binary_status_ecrf], axis=1)
         # group dataframe by center_name and aggregate the sum of the ecrf_status for each center_name
         df_ecrf_3 = df_ecrf_2[df_ecrf_2.ecrf_acronym == acronym].groupby('center_name').aggregate(["sum"])
         # reformat dataframe for sns plotting
@@ -46,9 +46,9 @@ def prepareFigures(config, dfDashboard):
         # make a copy of the original dfDashboard object
         df_center = dfDashboard.copy()
         # create binary values for ecrf_status
-        binary_status = pd.get_dummies(df_center.ecrf_status)
+        binary_status_center = pd.get_dummies(df_center.ecrf_status)
         # add binary values to dataframe
-        df_center_2 = pd.concat([df_center, binary_status], axis=1)
+        df_center_2 = pd.concat([df_center, binary_status_center], axis=1)
         # group dataframe by center_name and aggregate the sum of the ecrf_status for each center_name
         df_center_3 = df_center_2[df_center_2.center_name == center].groupby('visit_name').aggregate(["sum"])
         # reformat dataframe for sns plotting
