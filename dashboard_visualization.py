@@ -8,35 +8,61 @@ import matplotlib.backends.backend_pdf as backend_pdf
 
 # function to create and save dashboard figures
 def prepareFigures(config, dfDashboard):
+    ### accumulated status for all centers with separated plots for each eCRF
     # Export dashboard as PDF file
-    pdf = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/ecrf_status_dashboard.pdf")
-
+    pdf_ecrf = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/ecrf_center_status_dashboard.pdf")
     # loop to create aggregated status plots for every ecrf_acronym
     for acronym in dfDashboard.ecrf_acronym.unique():
         # make a copy of the original dfDashboard object
-        df = dfDashboard.copy()
+        df_ecrf = dfDashboard.copy()
         # create binary values for ecrf_status
-        binary_status = pd.get_dummies(df.ecrf_status)
+        binary_status = pd.get_dummies(df_ecrf.ecrf_status)
         # add binary values to dataframe
-        df2 = pd.concat([df, binary_status], axis=1)
+        df_ecrf_2 = pd.concat([df_ecrf, binary_status], axis=1)
         # group dataframe by center_name and aggregate the sum of the ecrf_status for each center_name
-        df3 = df2[df2.ecrf_acronym == acronym].groupby('center_name').aggregate(["sum"])
+        df_ecrf_3 = df_ecrf_2[df_ecrf_2.ecrf_acronym == acronym].groupby('center_name').aggregate(["sum"])
         # reformat dataframe for sns plotting
-        df_plot = pd.concat([df3.COMPLETED, df3.STARTED, df3.EMPTY], axis=1)
-        df_plot.columns = ["COMPLETED", "STARTED", "EMPTY"]
-        df_plot2 = pd.concat([df3.COMPLETED, df3.STARTED, df3.EMPTY], axis=0)
-        df_plot2 = pd.DataFrame(df_plot2)
-        df_plot2["status"] = ['COMPLETE'] * len(df_plot.COMPLETED) + ['STARTED'] * len(df_plot.COMPLETED) + ['EMPTY'] * len(df_plot.COMPLETED)
-        df_plot2["center_name"] = df_plot2.index
-        df_plot2.columns = ["status_accumulation", "status", "center_name"]
-
+        df_ecrf_plot = pd.concat([df_ecrf_3.COMPLETED, df_ecrf_3.STARTED, df_ecrf_3.EMPTY], axis=1)
+        df_ecrf_plot.columns = ["COMPLETED", "STARTED", "EMPTY"]
+        df_ecrf_plot2 = pd.DataFrame(df_ecrf_plot)
+        df_ecrf_plot2["center_name"] = df_ecrf_plot.index
         # create bar plot
-        bar_plot = sns.barplot(data=df_plot2, x="center_name", y="status_accumulation", hue="status", color = 'green', palette = ['tab:green', 'tab:orange', 'tab:red'])
+        bar_plot_ecrf = df_ecrf_plot2.set_index('center_name').plot(kind='bar', stacked=True, color=['green', 'orange', 'red'])
         # add title to every plot
-        bar_plot.set(title='eCRF: ' + acronym)
+        bar_plot_ecrf.set(title='eCRF: ' + acronym,  xlabel ="center_name", ylabel = "status_accumlation")
         # get specific sns figure for saving and save each figure in loop into pdf object
-        pdf.savefig(bar_plot.get_figure())
+        pdf_ecrf.savefig(bar_plot_ecrf.get_figure(), dpi=300, bbox_inches='tight')
         # close the sns plot
-        plt.close(bar_plot.get_figure())
+        plt.close(bar_plot_ecrf.get_figure())
     # finally close pdf object to save pdf
-    pdf.close()
+    pdf_ecrf.close()
+
+
+    ### accumulated status for all visit_names with separated plots for each center
+    # Export dashboard as PDF file
+    pdf_center = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/center_visit_status_dashboard.pdf")
+    # loop to create aggregated status plots for every ecrf_acronym
+    for center in dfDashboard.center_name.unique():
+        # make a copy of the original dfDashboard object
+        df_center = dfDashboard.copy()
+        # create binary values for ecrf_status
+        binary_status = pd.get_dummies(df_center.ecrf_status)
+        # add binary values to dataframe
+        df_center_2 = pd.concat([df_center, binary_status], axis=1)
+        # group dataframe by center_name and aggregate the sum of the ecrf_status for each center_name
+        df_center_3 = df_center_2[df_center_2.center_name == center].groupby('visit_name').aggregate(["sum"])
+        # reformat dataframe for sns plotting
+        df_center_plot = pd.concat([df_center_3.COMPLETED, df_center_3.STARTED, df_center_3.EMPTY], axis=1)
+        df_center_plot.columns = ["COMPLETED", "STARTED", "EMPTY"]
+        df_center_plot2 = pd.DataFrame(df_center_plot)
+        df_center_plot2["visit_name"] = df_center_plot.index
+        # create bar plot
+        bar_plot_center = df_center_plot2.set_index('visit_name').plot(kind='bar', stacked=True, color=['green', 'orange', 'red'])
+        # add title to every plot
+        bar_plot_center.set(title='Center Name: ' + center, xlabel ="visit_name", ylabel = "status_accumlation")
+        # get specific sns figure for saving and save each figure in loop into pdf object
+        pdf_center.savefig(bar_plot_center.get_figure(), dpi=300, bbox_inches='tight')
+        # close the sns plot
+        plt.close(bar_plot_center.get_figure())
+    # finally close pdf object to save pdf
+    pdf_center.close()
