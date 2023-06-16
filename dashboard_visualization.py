@@ -11,10 +11,13 @@ def prepareFigures(config, dfDashboard):
     ### accumulated status for all centers with separated plots for each eCRF
     # Export dashboard as PDF file
     pdf_ecrf = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/ecrf_center_status_dashboard.pdf")
+    # make a copy of the original dfDashboard object
+    df_ecrf = dfDashboard.copy()
+    # remove main center name from the df
+    df_ecrf = df_ecrf[df_ecrf.center_name != "main"]
+
     # loop to create aggregated status plots for every ecrf_acronym
-    for acronym in dfDashboard.ecrf_acronym.unique():
-        # make a copy of the original dfDashboard object
-        df_ecrf = dfDashboard.copy()
+    for acronym in df_ecrf.ecrf_acronym.unique():
         # create binary values for ecrf_status
         binary_status_ecrf = pd.get_dummies(df_ecrf.ecrf_status)
         # add binary values to dataframe
@@ -41,10 +44,13 @@ def prepareFigures(config, dfDashboard):
     ### accumulated status for all visit_names with separated plots for each center
     # Export dashboard as PDF file
     pdf_center = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/center_visit_status_dashboard.pdf")
+    # make a copy of the original dfDashboard object
+    df_center = dfDashboard.copy()
+    # remove main center name from the df
+    df_center = df_center[df_center.center_name != "main"]
+
     # loop to create aggregated status plots for every ecrf_acronym
-    for center in dfDashboard.center_name.unique():
-        # make a copy of the original dfDashboard object
-        df_center = dfDashboard.copy()
+    for center in df_center.center_name.unique():
         # create binary values for ecrf_status
         binary_status_center = pd.get_dummies(df_center.ecrf_status)
         # add binary values to dataframe
@@ -66,3 +72,24 @@ def prepareFigures(config, dfDashboard):
         plt.close(bar_plot_center.get_figure())
     # finally close pdf object to save pdf
     pdf_center.close()
+
+
+# def convert_status(value):
+#     if value == "COMPLETED":
+#         value = 2
+#     elif value == "STARTED":
+#         value = 1
+#     else:
+#         value = 0
+#     return value
+#
+#
+# test = df_center[df_center.center_name == center]
+# test['test'] = [convert_status(x) for x in test['ecrf_status']]
+# test2 = pd.concat([test.participant_identifier,test.visit_name, test.test], axis=1)
+# test2 = test2.sort_values(by=['participant_identifier'])
+#
+# test3 = test2.reset_index()
+# test3 = pd.melt(test3, id_vars=['participant_identifier']).pivot(index = 'participant_identifier', values='test', columns='visit_name')
+# for c in test3.columns:
+#     test3.loc[test3[c].notna(), c] = c
