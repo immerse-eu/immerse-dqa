@@ -15,6 +15,8 @@ def prepareFigures(config, dfDashboard):
     df_ecrf = dfDashboard.copy()
     # remove main center name from the df
     df_ecrf = df_ecrf[df_ecrf.center_name != "main"]
+    # remove all participants not included in the study
+    df_ecrf = df_ecrf[df_ecrf.included_in_study == "included"]
 
     # loop to create aggregated status plots for every ecrf_acronym
     for acronym in df_ecrf.ecrf_acronym.unique():
@@ -48,6 +50,8 @@ def prepareFigures(config, dfDashboard):
     df_center = dfDashboard.copy()
     # remove main center name from the df
     df_center = df_center[df_center.center_name != "main"]
+    # remove all participants not included in the study
+    df_center = df_center[df_center.included_in_study == "included"]
 
     # loop to create aggregated status plots for every ecrf_acronym
     for center in df_center.center_name.unique():
@@ -72,24 +76,3 @@ def prepareFigures(config, dfDashboard):
         plt.close(bar_plot_center.get_figure())
     # finally close pdf object to save pdf
     pdf_center.close()
-
-
-# def convert_status(value):
-#     if value == "COMPLETED":
-#         value = 2
-#     elif value == "STARTED":
-#         value = 1
-#     else:
-#         value = 0
-#     return value
-#
-#
-# test = df_center[df_center.center_name == center]
-# test['test'] = [convert_status(x) for x in test['ecrf_status']]
-# test2 = pd.concat([test.participant_identifier,test.visit_name, test.test], axis=1)
-# test2 = test2.sort_values(by=['participant_identifier'])
-#
-# test3 = test2.reset_index()
-# test3 = pd.melt(test3, id_vars=['participant_identifier']).pivot(index = 'participant_identifier', values='test', columns='visit_name')
-# for c in test3.columns:
-#     test3.loc[test3[c].notna(), c] = c
