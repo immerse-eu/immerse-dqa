@@ -39,6 +39,8 @@ def prepareFigures(config, dfDashboard):
         pdf_ecrf.savefig(bar_plot_ecrf.get_figure(), dpi=300, bbox_inches='tight')
         # close the sns plot
         plt.close(bar_plot_ecrf.get_figure())
+        df_ecrf_plot2.to_csv(config["localPaths"]["basePathDqa"] + "/" + acronym + "_center_status_dashboard.csv",
+                               sep=";", index=False)
     # finally close pdf object to save pdf
     pdf_ecrf.close()
 
@@ -74,5 +76,6 @@ def prepareFigures(config, dfDashboard):
         pdf_center.savefig(bar_plot_center.get_figure(), dpi=300, bbox_inches='tight')
         # close the sns plot
         plt.close(bar_plot_center.get_figure())
+        #df_center_plot2.to_csv(config["localPaths"]["basePathDqa"] + "/" + center + "_visit_status_dashboard.csv", sep=";", index=False)
     # finally close pdf object to save pdf
     pdf_center.close()

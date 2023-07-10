@@ -31,6 +31,9 @@ def prepareDashboard(config, dfMaganamed):
     df = pd.DataFrame(columns=["participant_identifier", "included_in_study"])
     df["participant_identifier"] = dfMaganamed["SCREENING"]["participant_identifier"]
     df["included_in_study"] = dfMaganamed["SCREENING"]["SCREENING_decision"]
+    df["visit_name"] = dfMaganamed["SCREENING"]["visit_name"]
+    df = df[df.visit_name == "Screening"]
+    df.drop(['visit_name'], axis=1, inplace=True)
     dfDashboard = pd.merge(dfDashboard, df, how="left", on=["participant_identifier"])
 
     #Remove second column after merge for included data without information
