@@ -9,7 +9,8 @@ from functools import reduce
 # Required modules
 import prepare_dashboard
 import prepare_dataquier
-import dashboard_visualization
+import dashboard_visualization_maganamed
+import dashboard_visualization_movisensxs
 
 # Required modules
 import maganamed
@@ -29,4 +30,5 @@ dfDashboard = prepare_dashboard.prepareDashboard(config, dfMaganamed)
 dfDashboard.to_csv(config["localPaths"]["basePathDqa"] + "/dashboard.csv", sep = ";", index = False)
 
 # generate dashboard figures
-dashboard_visualization.prepareFigures(config, dfDashboard)
+dashboard_visualization_maganamed.prepareFigures(config, dfDashboard)
+dashboard_visualization_movisensxs.prepareFigures(config)

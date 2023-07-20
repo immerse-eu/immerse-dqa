@@ -4,13 +4,25 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf as backend_pdf
+import os
 
 
 # function to create and save dashboard figures
 def prepareFigures(config, dfDashboard):
+    # set folder paths
+    basePath_Dqa = config["localPaths"]["basePathDqa"]
+    validation_csv_folder = config["localPaths"]["basePathDqa"] + "/validation_csv"
+
+    # create_folders if not existing
+    if not os.path.exists(basePath_Dqa):
+        os.makedirs(basePath_Dqa)
+    if not os.path.exists(validation_csv_folder):
+        os.makedirs(validation_csv_folder)
+
+
     ### accumulated status for all centers with separated plots for each eCRF
     # Export dashboard as PDF file
-    pdf_ecrf = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/ecrf_center_status_dashboard.pdf")
+    pdf_ecrf = backend_pdf.PdfPages(basePath_Dqa + "/ecrf_center_status_dashboard.pdf")
     # make a copy of the original dfDashboard object
     df_ecrf = dfDashboard.copy()
     # remove main center name from the df
@@ -39,7 +51,7 @@ def prepareFigures(config, dfDashboard):
         pdf_ecrf.savefig(bar_plot_ecrf.get_figure(), dpi=300, bbox_inches='tight')
         # close the sns plot
         plt.close(bar_plot_ecrf.get_figure())
-        df_ecrf_plot2.to_csv(config["localPaths"]["basePathDqa"] + "/" + acronym + "_center_status_dashboard.csv",
+        df_ecrf_plot2.to_csv(validation_csv_folder + "/" + acronym + "_center_status_dashboard.csv",
                                sep=";", index=False)
     # finally close pdf object to save pdf
     pdf_ecrf.close()
@@ -47,7 +59,7 @@ def prepareFigures(config, dfDashboard):
 
     ### accumulated status for all visit_names with separated plots for each center
     # Export dashboard as PDF file
-    pdf_center = backend_pdf.PdfPages(config["localPaths"]["basePathDqa"] + "/center_visit_status_dashboard.pdf")
+    pdf_center = backend_pdf.PdfPages(basePath_Dqa + "/center_visit_status_dashboard.pdf")
     # make a copy of the original dfDashboard object
     df_center = dfDashboard.copy()
     # remove main center name from the df
@@ -76,6 +88,6 @@ def prepareFigures(config, dfDashboard):
         pdf_center.savefig(bar_plot_center.get_figure(), dpi=300, bbox_inches='tight')
         # close the sns plot
         plt.close(bar_plot_center.get_figure())
-        #df_center_plot2.to_csv(config["localPaths"]["basePathDqa"] + "/" + center + "_visit_status_dashboard.csv", sep=";", index=False)
+        #df_center_plot2.to_csv(validation_csv_folder + center + "_visit_status_dashboard.csv", sep=";", index=False)
     # finally close pdf object to save pdf
     pdf_center.close()
