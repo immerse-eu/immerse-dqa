@@ -49,6 +49,12 @@ def prepareFigures(config, dfDashboard):
         df_ecrf_plot2["center_name"] = df_ecrf_plot.index
         # create bar plot
         bar_plot_ecrf = df_ecrf_plot2.set_index('center_name').plot(kind='bar', stacked=True, color=['green', 'yellowgreen', 'orange', 'red'])
+        # add numbers to the bar plot
+        for container in bar_plot_ecrf.containers:
+            bar_label_ecrf = bar_plot_ecrf.bar_label(container, fmt='%d', label_type='center')
+            for label in bar_label_ecrf:
+                if label.get_text() == '0':  # 값이 0이면 빈 문자열로 설정
+                    label.set_text('')
         # add title to every plot
         bar_plot_ecrf.set(title='eCRF: ' + acronym,  xlabel ="center_name", ylabel = "status_accumlation")
         # get specific sns figure for saving and save each figure in loop into pdf object
@@ -86,6 +92,12 @@ def prepareFigures(config, dfDashboard):
         df_center_plot2["visit_name"] = df_center_plot.index
         # create bar plot
         bar_plot_center = df_center_plot2.set_index('visit_name').plot(kind='bar', stacked=True, color=['green', 'yellowgreen', 'orange', 'red'])
+        # add numbers to the bar plot
+        for container in bar_plot_center.containers:
+            bar_label_center = bar_plot_center.bar_label(container, fmt='%d', label_type='center')
+            for label in bar_label_center:
+                if label.get_text() == '0':
+                    label.set_text('')
         # add title to every plot
         bar_plot_center.set(title='Center Name: ' + center, xlabel ="visit_name", ylabel = "status_accumlation")
         # get specific sns figure for saving and save each figure in loop into pdf object
