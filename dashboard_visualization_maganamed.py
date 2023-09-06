@@ -26,7 +26,7 @@ def prepareFigures(config, dfDashboard):
 
     ### accumulated status for all centers with separated plots for each eCRF
     # Export dashboard as PDF file
-    pdf_ecrf = backend_pdf.PdfPages(basePath_Dqa + "/ecrf_center_status_dashboard_" + created_date + ".pdf")
+    pdf_ecrf = backend_pdf.PdfPages(basePath_Dqa + "/ecrf_center_status_dashboard_createdOn_" + created_date + ".pdf")
     # make a copy of the original dfDashboard object
     df_ecrf = dfDashboard.copy()
     # remove main center name from the df
@@ -41,7 +41,14 @@ def prepareFigures(config, dfDashboard):
         # add binary values to dataframe
         df_ecrf_2 = pd.concat([df_ecrf, binary_status_ecrf], axis=1)
         # group dataframe by center_name and aggregate the sum of the ecrf_status for each center_name
-        df_ecrf_3 = df_ecrf_2[df_ecrf_2.ecrf_acronym == acronym].groupby('center_name').aggregate(["sum"])
+        if acronym not in ["DIAGNOSIS", "CSRI_BE", "BEAQ"]:
+            df_ecrf_3 = df_ecrf_2[df_ecrf_2.ecrf_acronym == acronym].groupby('center_name').aggregate(["sum"])
+        elif acronym == "DIAGNOSIS":
+            df_ecrf_3 =  df_ecrf_2[(df_ecrf_2.ecrf_acronym == "DIAGNOSIS") & (df_ecrf_2.visit_name == "Baseline (clinician)")].groupby('center_name').aggregate(["sum"])
+        elif acronym == "CSRI_BE":
+            df_ecrf_3 = df_ecrf_2[(df_ecrf_2.ecrf_acronym == "CSRI_BE") & (df_ecrf_2.visit_name == "Baseline (patient)")].groupby('center_name').aggregate(["sum"])
+        elif acronym == "BEAQ":
+            df_ecrf_3 = df_ecrf_2[(df_ecrf_2.ecrf_acronym == "BEAQ") & (df_ecrf_2.visit_name == "Enrolment (patient)")].groupby('center_name').aggregate(["sum"])
         # reformat dataframe for sns plotting
         df_ecrf_plot = pd.concat([df_ecrf_3.COMPLETED, df_ecrf_3.quickCOMPLETED, df_ecrf_3.STARTED, df_ecrf_3.EMPTY], axis=1)
         df_ecrf_plot.columns = ["COMPLETED", "quickCOMPLETED", "STARTED", "EMPTY"]
@@ -53,10 +60,17 @@ def prepareFigures(config, dfDashboard):
         for container in bar_plot_ecrf.containers:
             bar_label_ecrf = bar_plot_ecrf.bar_label(container, fmt='%d', label_type='center')
             for label in bar_label_ecrf:
-                if label.get_text() == '0':  # 값이 0이면 빈 문자열로 설정
+                if label.get_text() == '0':
                     label.set_text('')
         # add title to every plot
-        bar_plot_ecrf.set(title='eCRF: ' + acronym,  xlabel ="center_name", ylabel = "status_accumlation")
+        if acronym not in ["DIAGNOSIS", "CSRI_BE", "BEAQ"]:
+            bar_plot_ecrf.set(title='eCRF: ' + acronym,  xlabel ="center_name", ylabel = "status_accumlation")
+        elif acronym == "DIAGNOSIS":
+            bar_plot_ecrf.set(title='eCRF: ' + acronym + ' *only Baseline (clinician)', xlabel="center_name", ylabel="status_accumlation")
+        elif acronym == "CSRI_BE":
+            bar_plot_ecrf.set(title='eCRF: ' + acronym + ' *only Baseline(patient)', xlabel="center_name", ylabel="status_accumlation")
+        elif acronym == "BEAQ":
+            bar_plot_ecrf.set(title='eCRF: ' + acronym + ' *only Enrolment (patient)', xlabel="center_name", ylabel="status_accumlation")
         # get specific sns figure for saving and save each figure in loop into pdf object
         pdf_ecrf.savefig(bar_plot_ecrf.get_figure(), dpi=300, bbox_inches='tight')
         # close the sns plot
@@ -69,7 +83,7 @@ def prepareFigures(config, dfDashboard):
 
     ### accumulated status for all visit_names with separated plots for each center
     # Export dashboard as PDF file
-    pdf_center = backend_pdf.PdfPages(basePath_Dqa + "/center_visit_status_dashboard_" + created_date + ".pdf")
+    pdf_center = backend_pdf.PdfPages(basePath_Dqa + "/center_visit_status_dashboard_createdOn_" + created_date + ".pdf")
     # make a copy of the original dfDashboard object
     df_center = dfDashboard.copy()
     # remove main center name from the df

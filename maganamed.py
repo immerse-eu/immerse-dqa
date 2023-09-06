@@ -52,7 +52,8 @@ def compileMaganamedData(config):
 
     # Correct value of status attribute, if fillouttime is too short
     for ecrfAcronym in dfMaganamed:
-        dfMaganamed[ecrfAcronym].loc[dfMaganamed[ecrfAcronym]["fillouttime"] < 100, "status"] = "quickCOMPLETED"
+        if ecrfAcronym not in ['EQ5D5L1', 'EQ5D5L2', 'EQ5D5L3', 'EQ5D5L4', 'EQ5D5L5', 'EQ5D5L6']:
+            dfMaganamed[ecrfAcronym].loc[dfMaganamed[ecrfAcronym]["fillouttime"] < 60, "status"] = "quickCOMPLETED"
 
     # Prefix column names of non-metadata columns with eCRF acronym
     for ecrfAcronym in dfMaganamed:
