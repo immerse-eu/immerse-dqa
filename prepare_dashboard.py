@@ -81,6 +81,7 @@ def approximateReponsePercent(config, dfDashboard, created_date):
     fileNames_to_check = ['Demographics-(Clinicians).csv', 'Demographics-(Patients).csv', 'Service-Attachement-Questionnaire-(SAQ).csv']
     ecrfAcronyms_to_check = ['DEMOG_CLIN', 'DEMOG_PAT', 'SAQ']
     i = 0
+
     # process for each ecrf: check the response status beyond all participants
     for file_name in fileNames_to_check:
         file_path = os.path.join(file_path, file_name)
@@ -111,6 +112,7 @@ def approximateReponsePercent(config, dfDashboard, created_date):
             df.at[index, 'unresponsed_variables'] = ', '.join(unresponsed_vars)
             # for better concise visualization
             df.loc[df['responsed_items'] == 0, 'unresponsed_variables'] = 'all variables are not responsed'
+
         # calculate response rate as percentage
         if (df['ecrf_acronym'] == 'DEMOG_CLIN').all():
             result = df['responsed_items'] / 14
@@ -124,15 +126,13 @@ def approximateReponsePercent(config, dfDashboard, created_date):
             df.loc[df['responsePercent_approx'] > 100,'responsePercent_approx'] = 100
         else:
             df['responsePercent'] = round(result * 100, 2)
+
         # Merge all columns in one dataframe
         responseInfo_all = pd.concat(
             [responseInfo_all, df[['participant_identifier', 'center_name', 'ecrf_acronym', 'visit_name', 'responsed_items', 'responsePercent', 'responsePercent_approx', 'unresponsed_variables']]],
             ignore_index=True)
         responseInfo_all.to_excel(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableXLSX_createdOn_" + created_date + ".xlsx", index = False)
         responseInfo_all.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableCSV_createdOn_" + created_date + ".csv", sep = ";", index = False)
-
-
-
 
     # merge response information into dfDashboard
     dfDashboard = pd.merge(dfDashboard, responseInfo_all[
