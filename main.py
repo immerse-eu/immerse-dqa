@@ -30,10 +30,12 @@ dfMaganamed = maganamed.compileMaganamedData(config)
 #print(tabulate(dfMaganamed["EQ5D5L1"], headers="keys"))
 
 dfDashboard = prepare_dashboard.prepareDashboard(config, dfMaganamed)
+dfDashboard = prepare_dashboard.approximateReponsePercent(config, dfDashboard, created_date)
 
 # Export merged dataframe to CSV file
-dfDashboard.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_dashboard" + created_date + ".csv", sep = ";", index = False)
+dfDashboard.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_dashboard_createdOn_" + created_date + ".csv", sep = ";", index = False)
 
 # generate dashboard figures
 dashboard_visualization_maganamed.prepareFigures(config, dfDashboard)
-dashboard_visualization_movisensxs.prepareFigures(config)
+# dashboard_visualization_maganamed.responsePerParticipants(config, dfDashboard)
+# dashboard_visualization_movisensxs.prepareFigures(config)

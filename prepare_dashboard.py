@@ -4,6 +4,8 @@ from functools import reduce
 from tabulate import tabulate
 from pandas import DataFrame
 import numpy as np
+import os
+import os.path as p
 
 # Function to generate aggregated status/count information for each site, visit and form to be visualized on the dashboard
 def prepareDashboard(config, dfMaganamed):
@@ -69,4 +71,71 @@ def prepareDashboard(config, dfMaganamed):
 
 
     # Return dataframe with dashboard data
+    return(dfDashboard)
+
+# Function to check individual response rate of certain ecrfs
+def approximateReponsePercent(config, dfDashboard, created_date):
+    file_path = config["localPaths"]["basePathMaganamed"] + "/export/"
+    responseInfo_all = pd.DataFrame()
+    # list of ecrfs to process
+    fileNames_to_check = ['Demographics-(Clinicians).csv', 'Demographics-(Patients).csv', 'Service-Attachement-Questionnaire-(SAQ).csv']
+    ecrfAcronyms_to_check = ['DEMOG_CLIN', 'DEMOG_PAT', 'SAQ']
+    i = 0
+    # process for each ecrf: check the response status beyond all participants
+    for file_name in fileNames_to_check:
+        file_path = os.path.join(file_path, file_name)
+        # read CSV to dataframe
+        if p.isfile(config["localPaths"]["basePathMaganamed"] + "/export/" + file_name):
+            df = pd.read_csv(config["localPaths"]["basePathMaganamed"] + "/export/" + file_name, delimiter=";")
+        # add & remove columns
+        df['ecrf_acronym'] = ecrfAcronyms_to_check[i]
+        i += 1
+        df['responsed_items'] = 0
+        df['responsePercent_approx'] = None
+        df['responsePercent'] = None
+        df['unresponsed_variables'] = "" # [] oder null?
+        df = df.drop(['created_at', 'diary_date'], axis=1)
+        # define question columns to check
+        question_columns = [col for col in df.columns if
+                            col not in ['participant_identifier', 'center_name', 'ecrf_acronym', 'started_at',
+                                        'finished_at', 'visit_name', 'responsed_items', 'responsePercent',
+                                        'responsePercent_approx', 'unresponsed_variables']]
+        # process for each participant: check response status & update columns 'responsed_items'과 'unresponsed_variables'
+        for index, row in df.iterrows():
+            # count responsed items & save in column 'responsed_items'
+            response_count = sum([1 for col in question_columns if not pd.isnull(row[col])])
+            df.at[index, 'responsed_items'] = int(response_count)
+            df['responsed_items'] = df['responsed_items'].astype(int)
+            # extract all variable names of unresponsed items & save in column 'unresponsed_variables'
+            unresponsed_vars = [col for col in question_columns if pd.isnull(row[col])]
+            df.at[index, 'unresponsed_variables'] = ', '.join(unresponsed_vars)
+            # for better concise visualization
+            df.loc[df['responsed_items'] == 0, 'unresponsed_variables'] = 'all variables are not responsed'
+        # calculate response rate as percentage
+        if (df['ecrf_acronym'] == 'DEMOG_CLIN').all():
+            result = df['responsed_items'] / 14
+        elif (df['ecrf_acronym'] == 'DEMOG_PAT').all():
+            result = df['responsed_items'] / 19
+        elif (df['ecrf_acronym'] == 'SAQ').all():
+            result = df['responsed_items'] / 25
+        # save response percentage in appropriate columns
+        if file_name in ['Demographics-(Clinicians).csv', 'Demographics-(Patients).csv']:
+            df['responsePercent_approx'] = round(result * 100, 2)
+            df.loc[df['responsePercent_approx'] > 100,'responsePercent_approx'] = 100
+        else:
+            df['responsePercent'] = round(result * 100, 2)
+        # Merge all columns in one dataframe
+        responseInfo_all = pd.concat(
+            [responseInfo_all, df[['participant_identifier', 'center_name', 'ecrf_acronym', 'visit_name', 'responsed_items', 'responsePercent', 'responsePercent_approx', 'unresponsed_variables']]],
+            ignore_index=True)
+        responseInfo_all.to_excel(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableXLSX_createdOn_" + created_date + ".xlsx", index = False)
+        responseInfo_all.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableCSV_createdOn_" + created_date + ".csv", sep = ";", index = False)
+
+
+
+
+    # merge response information into dfDashboard
+    dfDashboard = pd.merge(dfDashboard, responseInfo_all[
+        ['participant_identifier', 'ecrf_acronym', 'visit_name', 'responsed_items', 'responsePercent', 'responsePercent_approx', 'unresponsed_variables']],
+                           on=['participant_identifier', 'ecrf_acronym', 'visit_name'], how='left')
     return(dfDashboard)
