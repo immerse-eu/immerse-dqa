@@ -176,3 +176,17 @@ def prepareFigures(config, dfDashboard):
         #df_center_plot2.to_csv(validation_csv_folder + center + "_visit_status_dashboard.csv", sep=";", index=False)
     # finally close pdf object to save pdf
     pdf_center.close()
+
+def responsePerParticipants(config, responseInfo_all, created_date):
+    # make a copy of the original dfDashboard object
+    dfRsponseTable = responseInfo_all.copy()
+    # remove main center name from the df
+    dfRsponseTable = dfRsponseTable[dfRsponseTable.center_name != "main"]
+    # save dataframe in xlsx & csv file
+    dfRsponseTable.to_excel(
+        config["localPaths"]["basePathDqa"] + "/maganamed_responseTableXLSX_createdOn_" + created_date + ".xlsx",
+        index=False)
+    dfRsponseTable.to_csv(
+        config["localPaths"]["basePathDqa"] + "/maganamed_responseTableCSV_createdOn_" + created_date + ".csv", sep=";",
+        index=False)
+    return(dfRsponseTable)

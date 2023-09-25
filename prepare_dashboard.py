@@ -131,11 +131,11 @@ def approximateReponsePercent(config, dfDashboard, created_date):
         responseInfo_all = pd.concat(
             [responseInfo_all, df[['participant_identifier', 'center_name', 'ecrf_acronym', 'visit_name', 'responsed_items', 'responsePercent', 'responsePercent_approx', 'unresponsed_variables']]],
             ignore_index=True)
-        responseInfo_all.to_excel(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableXLSX_createdOn_" + created_date + ".xlsx", index = False)
-        responseInfo_all.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableCSV_createdOn_" + created_date + ".csv", sep = ";", index = False)
+        # responseInfo_all.to_excel(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableXLSX_createdOn_" + created_date + ".xlsx", index = False)
+        # responseInfo_all.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_responseTableCSV_createdOn_" + created_date + ".csv", sep = ";", index = False)
 
     # merge response information into dfDashboard
     dfDashboard = pd.merge(dfDashboard, responseInfo_all[
         ['participant_identifier', 'ecrf_acronym', 'visit_name', 'responsed_items', 'responsePercent', 'responsePercent_approx', 'unresponsed_variables']],
                            on=['participant_identifier', 'ecrf_acronym', 'visit_name'], how='left')
-    return(dfDashboard)
+    return(responseInfo_all)
