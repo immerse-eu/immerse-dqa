@@ -37,5 +37,4 @@ dfDashboard.to_csv(config["localPaths"]["basePathDqa"] + "/maganamed_dashboard_c
 
 # generate dashboard figures
 dashboard_visualization_maganamed.prepareFigures(config, dfDashboard)
-# dashboard_visualization_maganamed.responsePerParticipants(config, dfDashboard)
-# dashboard_visualization_movisensxs.prepareFigures(config)
+dashboard_visualization_movisensxs.prepareFigures(config)
