@@ -50,6 +50,11 @@ def compileMaganamedData(config):
     for ecrfAcronym in dfMaganamed:
         dfMaganamed[ecrfAcronym]["fillouttime"] = dfMaganamed[ecrfAcronym].apply(lambda x: deriveFilloutTime(x.status, x.started_at, x.finished_at), axis = 1)
 
+    # Correct value of status attribute, if fillouttime is too short
+    for ecrfAcronym in dfMaganamed:
+        if ecrfAcronym not in ['EQ5D5L1', 'EQ5D5L2', 'EQ5D5L3', 'EQ5D5L4', 'EQ5D5L5', 'EQ5D5L6']:
+            dfMaganamed[ecrfAcronym].loc[dfMaganamed[ecrfAcronym]["fillouttime"] < 60, "status"] = "quickCOMPLETED"
+
     # Prefix column names of non-metadata columns with eCRF acronym
     for ecrfAcronym in dfMaganamed:
         dictRename = {}
